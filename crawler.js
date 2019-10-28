@@ -1,11 +1,11 @@
 const Crawler = require("crawler");
-
-let obselete = []; // Array of what was crawled already
-
+const fs = require('fs')
+let set = new Set; // Array of what was crawled already
+var arr = []
 let c = new Crawler();
 
 function crawlAllUrls(url) {
-    console.log(`Crawling ${url}`);
+    //console.log(`Crawling ${url}`);
     c.queue({
         uri: url,
         callback: function (err, res, done) {
@@ -15,19 +15,33 @@ function crawlAllUrls(url) {
                 let urls = $("a");
                 Object.keys(urls).forEach((item) => {
                     if (urls[item].type === 'tag') {
-                        let href = urls[item].attribs.href;
-                        if (href && !obselete.includes(href)) {
-                            href = href.trim();
-                            obselete.push(href);
-                            // Slow down the
-                            setTimeout(function() {
-                                href.startsWith('http') ? crawlAllUrls(href) : crawlAllUrls(`${url}${href}`) // The latter might need extra code to test if its the same site and it is a full domain with no URI
+                        let attribs = urls[item].attribs;
+                        if (attribs.href && !set.has(attribs.href)) {
+                            href = attribs.href.trim();
+                            set.add(href);
+                            
+                            if(attribs.href.startsWith('http')) {
+                                arr.push(JSON.stringify({
+                                    "href": href,
+                                    "title": attribs.title
+                                }))
+                                console.log("Crawling " + href)
+                                crawlAllUrls(attribs.href)
+
+                            }
+
                                 
-                            }, 5000)
+                            
 
                         }
                     }
                 });
+                var link = arr.shift()
+                fs.appendFile('data.json', link, function(err) {
+                    if(err)
+                        console.log(err)
+                } )
+                
             } catch (e) {
                 console.error(`Encountered an error crawling ${url}. Aborting crawl.`);
                 done()
