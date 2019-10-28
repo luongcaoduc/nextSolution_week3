@@ -1,11 +1,11 @@
 const Crawler = require("crawler");
 const fs = require('fs')
-let set = new Set; // Array of what was crawled already
+let set = new Set; // 
 var arr = []
 let c = new Crawler();
 
 function crawlAllUrls(url) {
-    //console.log(`Crawling ${url}`);
+    console.log(`Crawling ${url}`);
     c.queue({
         uri: url,
         callback: function (err, res, done) {
@@ -25,7 +25,7 @@ function crawlAllUrls(url) {
                                     "href": href,
                                     "title": attribs.title
                                 }))
-                                console.log("Crawling " + href)
+                                //console.log("Crawling " + href)
                                 crawlAllUrls(attribs.href)
 
                             }
